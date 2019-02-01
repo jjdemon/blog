@@ -373,18 +373,267 @@ def false():
 # print(math.modf(22.14))
 # print(math.modf(223.22))
 
-import random
+# import random
 # randint 从(x,y)这个范围内,随机取一个整数,并且 x<=n<=y
-print(random.randint(1,10))     #包含1,包含10
-print(random.randint(1,10))
+# print(random.randint(1,10))     #包含1,包含10
+# print(random.randint(1,10))
+#
+# #random.choice 从一个序列中,随机取一个数
+# print(random.choice(range(1,10)))      #包含1不包含10
+# print(random.choice(range(1,3)))
+#
+# list1 = ['a','b','c','d']
+# print(random.choice(list1))     #随机从列表中取一个
+# print(random.choice('hello'))   #随机从hello中返回一个字符
+#
+# print(random.choice(range(10)))
+# print(random.randrange(10))
+# print(random.randrange(5,20,4))
 
-#random.choice 从一个序列中,随机取一个数
-print(random.choice(range(1,10)))      #包含1不包含10
-print(random.choice(range(1,3)))
+# 返回一个0-1的随机数,浮点数     0<n<1
+# print(random.random())
 
-list1 = ['a','b','c','d']
-print(random.choice(list1))     #随机从列表中取一个
-print(random.choice('hello'))   #随机从hello中返回一个字符
+# 将列表中的元素,随机排序
+# list2 = ['a','b','c','d','e']
+# random.shuffle(list2)   #没有返回值,直接修改这个列表
+# print(list2)
+# 返回一个3-10之间的随机数,浮点数
+# print(random.uniform(3,10))     #3<n<10
 
-print(random.choice(range(10)))
-print(random.randrange(10))
+# 元组: 只读的列表
+# tuple1 = ()   #空元组
+# tuple2 = (1,2,3,4,5)
+# tuple3 = (2,"hello",True)
+# #
+# print( type(tuple1))
+# print( tuple2)
+# print( type(tuple2))
+# print( type(tuple3) )
+
+# tuple4 = (5+4)  #括号用于提升优先级
+# tuple5 = (5)    #这个括号不会当做元组,会当成数字处理
+# print( tuple4 )
+# print( type(tuple5) )
+#
+# tuple6 = (5,)     #如果元组只有一个元素,需要多加一个逗号,否则会被当做数字处理
+# print( tuple6)
+# print( type(tuple6))
+
+
+# 元组中的元素,只允许被读取,不允许被修改
+# tuple7 = ("a","b","c","d")
+#
+# 元组也是有序列表,可以通过索引获取
+# print( tuple7[0] )
+# print( tuple7[-2] )
+
+# print( tuple7[10] )   #元组越界
+
+# tuple7[2] = "hello"     #元组中的元素,不允许被修改
+
+# tuple8 = (1,2,3,4,[5,6,7])
+# tuple8[-1] = "hello"     #不允许修改.  这里修改的是整个元素
+
+# tuple8[-1][0] = 20    #整个列表作为整体不允许被修改,但是列表中的元素,允许被修改
+# print( tuple8)
+
+
+#元组可以被整体删除
+# del tuple8           #删除就相当于整个变量未声明
+# print(tuple8)
+
+
+# + 合并元组
+tuple1 = (1,2,3)
+# tuple2 = (4,5,6)
+# tuple3 = tuple1+tuple2   #合并元组后,返回新元组
+#
+# print(tuple3)
+#
+# print( tuple1*3 )    #重复3次
+# print(tuple1)
+
+# print( 1 in tuple1 )  #在这个元组中就返回True
+# print( 1 not in tuple1 )  #不在返回True
+
+#和列表一样,支持切片
+# print( tuple1[1:] )
+# print( tuple1[-1:] )
+# print( tuple1[:2] )
+
+# print( tuple1[::-1])
+
+# print( len(tuple1) ) #求长度
+# print( max(tuple1) )
+# print( min(tuple1) )
+
+# 元组和列表互转
+# list1 = ["a","b","c"]
+# print(   tuple(list1)    )   #列表转元组
+
+# print( list(  ("a","b","c")   ) )   #元组转列表
+
+#遍历的三种方式
+# tuple2 = (4,5,6)
+# # 1.for in
+# for item in tuple2:
+#     print(item)
+#
+# # 2. 使用下标遍历
+# for i in range(len(tuple2)):
+#     print(tuple2[i])
+#
+# # 3,使用枚举遍历
+# for index,item in enumerate(tuple2):
+#     print(index,item)
+
+#二维元组
+# tuple3 = ( ("a","b","c"),(1,2,3),("A","B","C") )
+# for item in tuple3:   #("a","b","c")
+#     for item2 in  item:
+#         print(item2)
+
+# dict1 = {}  #空字典
+
+# dict2 = {"name":"xiaoming","age":20}  #字典中存储的是键值对. key:value的形式
+# print(dict2)
+# print( type(dict2))
+
+#字典中的key只允许出现一次.后面会覆盖前面
+# dict3 = {"name":"xiaoming","age":20,"name":"zhangsan"}
+# print(dict3)
+
+#不可变:  数字,字符串,元组
+#可变:    列表
+#key只能使用不可变类型
+# dict4 = {"name":"xiaoming",10:100,(1,2,3):"good"}
+# print(dict4)
+
+#列表不能作为字典的键
+# dict5 = {[1,2,3]:"hello"}
+# print(dict5)
+
+
+#字典的访问:     通过键来获取值
+dict5 = {"name":"xiaoming","age":20,"money":20}    #键不能重复,但是值可以
+# print(   dict5["hello"]  )   #如果该键不存在,则崩溃
+
+#get函数.  如果该key存在,则返回value. 若该key不存在,则返回None. 不会崩溃
+# result = dict5.get("name")
+# print(result)
+# result = dict4.get(10)
+# print(result)
+# result = dict4.get((1,2,3))
+# print(result)
+# result = dict5.get('age')
+# print(result)
+#
+# if result:    #如果result为None,则代表false
+#     print("存在这个键")
+# else:
+#     print("不存在这个键")
+
+
+#字典的添加和修改语法是一样的
+# dict6 = {"name":"xiaoming"}
+
+#添加一个键值对
+# dict6["sex"] = "男"          #dict[key] = value
+# print(dict6)
+
+#修改一个键值对
+# dict6["name"] = "zhangsan"
+# print(dict6)
+
+# dict[key] = value   对于不存在的键,则是添加.对于存在的键,就是修改
+
+
+# dict7 = {"name":"xiaoming","age":20,"sex":"男"}
+#删除
+# 1.pop  弹出: 删除这个键值对,返回值
+# result = dict7.pop("name")
+# print(result)
+
+# 2. del 纯删
+# del dict7["name"]
+#
+# print(dict7)
+
+dict1 = {"name":"xiaoming","age":20,"sex":"男"}
+
+#如果对字典使用for in 语法,那么这个循环变量就是key
+# for key in dict1:
+#     print(key,"=",dict1[key])
+# for key in dict1:
+#     print(key,'=',dict1[key])
+
+#获取所有键
+# key_list = dict1.keys()   #以列表的形式,返回有的键
+# for key in key_list:
+#     print(key)
+
+# for key in dict1.keys():
+#     print(key,'=',dict1[key])
+
+#获取所有的值
+# value_list = dict1.values()  #以列表的形式,返回有的值
+# for value in value_list:
+#     print(value)
+# for value in dict1.values():
+#     print(value)
+
+
+#获取所有的键值
+result = dict1.items()   #以列表的形式返回所有的键值对,每个键值对都是元组的形式
+# print(result)            #dict_items([('name', 'xiaoming'), ('age', 20), ('sex', '男')])
+# for (key,value) in result:   #直接通过元组的形式,遍历这个列表
+#     print(key,"=",value)
+
+#等同上面这个循环
+# for key,value in dict1.items():
+#     print(key,value)
+# for key,value in dict1.items():
+#     print(key,'=',value)
+
+#以枚举的形式遍历. 这个index只是key在字典中的序号,实际用来获取元素
+for index,key in enumerate(dict1):
+    print(index,key,dict1[key])
+    # print(dict1[key])     #value
+
+# print( dict1[0] )   #错误
+
+#1.逐一显示指定字典中的所有键，并在显示结束之后输出总键数
+dict1 = {"name":"xiaoming","age":20,"sex":"男"}
+
+#方法1
+count = 0
+for key in dict1:
+    print(key)
+    count +=1    #每执行一次循环,代表有一个键,那么就加1
+else:
+    print(count)  #打印
+
+#方法2
+for key in dict1:
+    print(key)
+else:
+    print(  len(dict1  ))   #直接打印字典内键值对的个数
+
+#2.list1 = [0,1,2,3,4,5,6],list2 = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].以list1中的元素作为key，
+# 以list2中的元组作为value生成一个新的字典dict2
+list1 = [0,1,2,3,4,5,6]
+list2 = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+dict2 = {}
+#因为键值必须成对出现,所以这两个列表必须等长
+if len(list1) == len(list2):
+    for i in range(len(list1)):  #以下标的方式遍历列表
+        # key                value
+        # list1[i]           list2[i]
+        dict2[ list1[i]  ] =  list2[i]
+
+print(dict2)
+
+
+#求出现最多次数的元素
+list3 = [1,2,2,2,2,5,5,7,7,7,7,7,7,7,7]
+dict1 = {}
