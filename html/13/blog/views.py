@@ -2,6 +2,7 @@
 from urllib.parse import parse_qs
 from hashlib import sha1
 from Manager import Manager
+from MyResponse import render,MyResponse
 
 import jinja2
 
@@ -30,6 +31,8 @@ def index(request):
 #         start_reponse('404 Not Found', [('Content-Type', 'text/html')])
 #         return [data.encode('utf-8')]
 def login(request):
+    print(request.cookies)
+    # print(request.environ)
     try:
         with open('templates/login.html') as fp:
             data = fp.read()
@@ -148,6 +151,12 @@ def studentList(request):
     request.start_response('200 ok', [('Content-Type', 'text/html')])
     return [template.render(students=data).encode('utf-8')]
 
+# 学生信息
+def studentInfo(request,sno):
+    print(sno)
+    request.start_response('200 ok', [('Content-Type', 'text/html')])
+    return [b'info']
+
 def register(request):
     print('register')
     html = b''
@@ -187,3 +196,11 @@ def yzm(request):
     data = vc.generate()
     request.start_response('200 ok', [('Content-Type', 'image/png')])
     return [data]
+
+def test(request):
+    print("111")
+    # print(request.cookies)
+    response = MyResponse(request)
+    response.setCookie('name','tom',1000)
+    print("222")
+    return response.reply("哈哈哈")

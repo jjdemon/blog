@@ -11,6 +11,11 @@ class MyRequest:
         # 请求路径
         self.path = environ.get('PATH_INFO','/')
 
+        # cookie
+        self.cookies = environ.get('HTTP_COOKIE','').split(";")
+        self.cookies = [value.split('=') for value in self.cookies]
+        self.cookies = {value:key for key,value in self.cookies}
+
         #get参数
         self.GET = self.get_parameters()
 

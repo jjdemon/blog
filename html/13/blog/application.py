@@ -28,10 +28,24 @@ def application(environ,start_response):
     #     return login(environ,start_response)
 
     # 第二版路由
-    for pattern,func in urlpatterns:
+    # for pattern,func in urlpatterns:
+    #     # print(pattern,func)
+    #     if :re.match(pattern,path,re.I)
+    #         return func(request)
+
+    for pattern, func in urlpatterns:
         # print(pattern,func)
-        if re.match(pattern,path,re.I):
-            return func(request)
+        res = re.match(pattern, path, re.I)
+
+        if res: # 匹配
+            if func.__code__.co_argcount == 1:
+                return func(request)
+            elif len(res.groups()) + 1 == func.__code__.co_argcount:
+                return func(request,*res.groups())
+            else: # 参赛不匹配
+                start_response('500 ok', [('Content-Type', 'text/html')])
+                return ["服务器内部错误！".encode('utf-8')]
+
 
     # 匹配不上走下面的代码
     # 响应头
