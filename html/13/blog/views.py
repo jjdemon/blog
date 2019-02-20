@@ -11,12 +11,18 @@ import jinja2
 #     start_response('200 ok', [('Content-Type', 'text/html')])
 #     return [b"<!doctype html><head><meta charset='utf-8'></head><body><h1>Hello world</h1></body></html>"]
 def index(request):
-    request.start_response('200 ok', [('Content-Type', 'text/html')])
-    return [b"<!doctype html><head><meta charset='utf-8'></head><body><h1>Hello world</h1></body></html>"]
-
-
-
-
+    # request.start_response('200 ok', [('Content-Type', 'text/html')])
+    # return [b"<!doctype html><head><meta charset='utf-8'></head><body><h1>Hello world</h1></body></html>"]
+    response = MyResponse(request)
+    cookie = request.cookies
+    print(cookie,'id' in cookie)
+    # 已登录
+    if 'id' in cookie:
+        print(111)
+        return  response.load('index.html',id=request.cookies.get('id'),username=request.cookies.get('name'))
+    else:
+        print(222)
+        return response.load('index.html')
 
 
 # 登录
@@ -76,7 +82,7 @@ def login(request):
 def doLogin(request):
     # 把参数字符串转化为字典
     paras = request.GET
-    print(paras)
+    # print(paras)
     username = paras.get('username')
     password = paras.get('password')
     password = sha1(password.encode('utf8')).hexdigest()
@@ -85,17 +91,29 @@ def doLogin(request):
     # 数据库操作
     db = Manager('user')
     result = db.where(name=username,password=password).select()
-    request.start_response('200 ok', [('Content-Type', 'text/html')])
+    # request.start_response('200 ok', [('Content-Type', 'text/html')])
 
     # 如果查询成功
     if result:
-        html=""
-        with open('templates/tip.html') as fp:
-            html = fp.read()
-        return [html.encode('utf-8')]
+        response = MyResponse(request)
+        print(result)
+        response.setCookie('name',result[0]['name'])
+        response.setCookie('id',result[0]['id'])
+        # html=""
+        # with open('templates/tip.html') as fp:
+        #     html = fp.read()
+
+        return response.load('index.html')
     else:
+        request.start_response('200 ok', [('Content-Type', 'text/html')])
         return ["用户名或密码错误，请重新登陆".encode('utf-8')]
 
+# 退出登录
+def logout(request):
+    response = MyResponse(request)
+    response.setCookie('id','',expired=-1)
+    response.setCookie('name','',expired=-1)
+    return  response.load('index.html')
 
 # 学生列表
 # def studentList(request):
@@ -187,13 +205,13 @@ def loadStatic(request):
     else:
         content = b"file not found"
         request.start_response('200 ok', [('Content-Type', 'text/html')])
-
     return [content]
 
 def yzm(request):
     from VerifyCode import VerifyCode
     vc = VerifyCode()
     data = vc.generate()
+    print(vc.code)
     request.start_response('200 ok', [('Content-Type', 'image/png')])
     return [data]
 
@@ -204,3 +222,35 @@ def test(request):
     response.setCookie('name','tom',1000)
     print("222")
     return response.reply("哈哈哈")
+
+def area(request):
+    response = MyResponse(request)
+    return response.load('area.html')
+
+def province(request,aid):
+    print(aid)
+    db = Manager('areainfo')
+    res = db.where(pid=aid).select()
+    print(res)
+    import json
+    data = "数据不存在"
+    if res:
+        data = json.dumps(res)
+
+    request.start_response('200 ok', [('Content-Type', 'image/png')])
+    return [data.encode('utf-8')]
+def hello(request):
+    response= MyResponse(request)
+    return response.load('hello.html')
+def jsonp(request,aid,funcname):
+    print(aid,funcname)
+    db = Manager('areainfo')
+    res = db.where(pid=aid).select()
+    print(res)
+    import json
+    data = "数据不存在"
+    if res:
+        data = json.dumps(res)
+    s1 = funcname + "(" + data+")"
+    request.start_response('200 ok', [('Content-Type', 'text/html')])
+    return [s1.encode('utf-8')]

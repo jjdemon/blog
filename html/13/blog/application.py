@@ -33,12 +33,14 @@ def application(environ,start_response):
     #     if :re.match(pattern,path,re.I)
     #         return func(request)
 
+    # 路由
     for pattern, func in urlpatterns:
         # print(pattern,func)
         res = re.match(pattern, path, re.I)
 
         if res: # 匹配
-            if func.__code__.co_argcount == 1:
+
+            if func.__code__.co_argcount == 1:  #只有一个参数
                 return func(request)
             elif len(res.groups()) + 1 == func.__code__.co_argcount:
                 return func(request,*res.groups())

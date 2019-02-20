@@ -3,7 +3,7 @@ database = {
             'host': 'localhost',
             'user': 'root',
             'password': '234',
-            'database': 'student',
+            'database': 'student1',
             'port': 3306,
             'charset': 'utf8'
         }

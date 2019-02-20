@@ -8,7 +8,7 @@ class MyResponse:
         self.headers = []
     def load(self,file,**kwargs):
         env = jinja2.Environment(loader=jinja2.FileSystemLoader(TEMPLATES))
-        template = env.get_template('studentlist.html')
+        template = env.get_template(file)
         self.headers.append(('Content-Type', 'text/html'))
         self.request.start_response(self.status, self.headers)
         return [template.render(**kwargs).encode('utf-8')]
@@ -19,6 +19,7 @@ class MyResponse:
         return [text.encode('utf-8')]
     def setCookie(self,key, value, expired=None, domain=None, path='/'):
         values = key + "=" + str(value) + ";"
+        #id=010;Max-Age=30;domain=localhost;path=/
         if expired:
             values += "Max-Age=" + str(expired) + ";"
         if domain:
