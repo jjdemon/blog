@@ -231,14 +231,27 @@ def province(request,aid):
     print(aid)
     db = Manager('areainfo')
     res = db.where(pid=aid).select()
-    print(res)
+    print (res)
     import json
-    data = "数据不存在"
+    data = '数据不存在'
     if res:
         data = json.dumps(res)
-
-    request.start_response('200 ok', [('Content-Type', 'image/png')])
+    request.start_response('200 ok', [('Content-Type', 'application/json')])
     return [data.encode('utf-8')]
+
+
+    # print(aid)
+    # db = Manager('areainfo')
+    # res = db.where(pid=aid).select()
+    # print(res)
+    # import json
+    # data = "数据不存在"
+    # if res:
+    #     data = json.dumps(res)
+    #
+    # request.start_response('200 ok', [('Content-Type', 'image/png')])
+    # return [data.encode('utf-8')]
+
 def hello(request):
     response= MyResponse(request)
     return response.load('hello.html')
@@ -254,3 +267,13 @@ def jsonp(request,aid,funcname):
     s1 = funcname + "(" + data+")"
     request.start_response('200 ok', [('Content-Type', 'text/html')])
     return [s1.encode('utf-8')]
+
+def ajax(request):
+    response = MyResponse(request)
+    return response.load('ajax.html')
+def get(request):
+    import json
+    data = [{'id':2,"name":"test01","password":"nindisd21"}]
+    data = json.dumps(data)
+    request.start_response('200 ok', [('Content-Type', 'application/json')])
+    return [data.encode('utf-8')]

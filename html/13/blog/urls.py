@@ -14,5 +14,7 @@ urlpatterns = [
     (r'^area$',views.area),
     (r'^province/(\d+)',views.province),
     (r'^hello$',views.hello),
-    (r'^jsonp/(\d+)/(\w+)$',views.jsonp)
+    (r'^jsonp/(\d+)/(\w+)$',views.jsonp),
+    (r'^ajax$',views.ajax),
+    (r'^get$',views.get),
 ]
