@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title>Title</title>
+		<style type="text/css">
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			
+			.main {
+				width: 808px;
+				margin: 50px auto;
+				background: gray;
+				min-height: 544px;
+				position: relative;
+			}
+			
+			.content {
+				width: 408px;
+				margin: 0 auto;
+				height: 408px;
+				border: 2px solid green;
+				background-color: white;
+				position: relative;
+				top: 0;
+				/*overflow: hidden;*/ 
+			}
+			
+			#inner {
+				height: 100px;
+				background: yellow;  
+				/*opacity: 0.5;*/  
+				position: relative;
+				top: -102px;
+			}
+			
+			.item {
+				height: 102px;
+			}
+			
+			.item * {
+				float: left;
+				height: 100px;
+				width: 100px;
+				background-color: white;
+				border: 1px solid black;
+			}
+			
+			.black {
+				background-color: black; 
+			}
+			
+			h3 {
+				text-align: center;
+				padding-top: 20px;
+				padding-bottom: 20px;
+			}
+			
+			h3 span {
+				color: brown;
+			}
+			
+			.hide {
+				display: none; 
+			}
+			
+			.shadow {
+				position: absolute;
+				left: 0;
+				bottom: 0;
+				right: 0;
+				top: 0;
+				background-color: gray;
+				opacity: 0.6;
+			}
+			
+			.alertBox {
+				position: absolute;
+				width: 300px;
+				height: 300px;
+				left: 50%;
+				top: 50%;
+				margin-left: -150px;
+				margin-top: -150px;
+				background-color: white;
+			}
+			
+			.alertBox .gameOver {
+				margin-left: 20%;
+				margin-top: 20%;
+				font-size: 40px;
+				
+			}
+			
+			.alertBox .btn {
+				width: 150px;
+				position: relative;
+				margin-left: auto;
+				margin-right: auto;
+				margin-top: 80px;
+			}
+			
+			.main .btn .container {
+				width: 150px;
+				margin: 20px auto;
+			}
+			
+			button {
+				cursor: pointer;
+				border: 0;
+				display: inline-block;
+				width: 70px;
+				height: 30px;
+				line-height: 30px;
+				text-align: center;
+				background-color: cyan;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="main">
+			<h3>Score:<span id="score">0</span></h3>
+			<div id="content" class="content">
+				<div id="inner"></div>
+			</div>
+			<div class="btn">
+				<div class="container">
+					<button id="begin">开始</button>
+					<button id="stop">暂停</button>
+				</div>
+			</div>
+
+			<div class="shadow hide"></div>
+			<div class="alertBox hide">
+				<div class="gameOver">
+					GameOver
+				</div>
+				<div class="btn">
+					<button id="again">再来一局</button>
+					<button id="back">返回</button>
+				</div>
+			</div>
+		</div>
+
+		
+		
+
+	</body>
+	<script src="js/jquery-1.12.3.js"></script> 
+	<script type="text/javascript">
+		
+//		1.游戏的初始化
+//		2.如何动态插入一行div和删除一行div
+//		3.开始暂停按钮的事件绑定
+//		4.游戏过程中点击百块和黑快的事件委托
+//		5.游戏如何移动以及如何得分
+//		6.如何自动增加白块下落速度
+//		7.如何判定游戏结束
+		
+		$(function(){
+			var isclear = true  //清除标志
+			var speed = 5   //每次下落距离
+			var startFlag = false  //开始标志，开始了才能点击
+			init()
+			start() 
+			stop()
+			bindClick()
+			//初始化
+			function init() {　　　　　 // 初始生成4*4的div
+				$.each([0, 1, 2, 3], function() {
+					insertDiv(); 
+				});
+			}
+			  
+			//插入行div
+			function insertDiv() {
+				var rand = Math.floor(Math.random() * 4);　 // 生成一个0到3 的随机数，用来作为判断生成黑块的位置
+				$("#inner").prepend("<div class='item'></div>"); //在最前面插入一个行div
+				$.each([0, 1, 2, 3], function(k, v) { //遍历四个格子  
+					if(v == rand) {
+						$("#inner .item").first().append("<div class='black col'></div>");
+					} else {
+						$("#inner .item").first().append("<div class='col'></div>"); 
+					}
+				}) 
+			}  
+				 
+			//移动
+			function move() {
+				var docTop = parseInt($("#inner").offset().top); //相对document顶部距离12
+//				console.log(docTop)
+				docTop += speed;　
+				 
+				$("#inner").offset({ top: docTop });
+				if(docTop >= 114) {    //114 = 102+12
+					insertDiv();       //在前面插入一行div
+					$("#inner").offset({ top: 12 })//重置相对顶部的偏移位置,刚好移动一格后再上移一个item(一格)
+//					$('#inner .item').last().remove()
+				}  
+				if($('#inner .item').length==6){
+					$('#inner .item').last().remove()  //删除最后一个行
+				}
+				for(var i=0;i<$('#inner .item').length;i++){  //判断黑块触碰边界,结束游戏
+					if ($('#inner .item').eq(i).find('div').hasClass('black')&($('#inner .item').eq(i).offset().top==420)){    //遍历行div,top位置等于420且含有black类属性
+						gameOver() 
+					}
+				}
+			}
+			
+	 		//开始
+			function start() {
+				$("#begin").mouseover(function() {
+					$(this).css("cursor", 'pointer');
+				}).click(function() {
+					if(isclear) {　　　　　　 // 看定时器是否清除
+											
+					} else {
+						clearInterval(timer);　　 //没有清除的话，先清除，避免两次按下开始按钮
+					}
+					timer = setInterval(move, 50); //30  启动定时器
+					startFlag = true　　　　　　 // 
+				})
+			}     
+			         
+			//暂停 
+			function stop() {
+				$("#stop").mouseover(function() {
+					$(this).css("cursor", 'pointer');
+				}).click(function() {
+					clearInterval(timer);
+					startFlag = false;
+					isclear = true;
+				})  
+			} 
+			
+			//游戏中的点击
+			function bindClick() {
+			    $("#inner").click(function (e) {
+			        if (startFlag) {
+			            var current = $(e.target) //e.target获得触发当前事件的对象
+			            if (current.hasClass("black")) {  //判断是否为黑块(是否拥有black类属性)
+			                current.removeClass("black")  //点对就将黑变白块
+			                score();  //计分
+			            } else {
+			                gameOver(); //游戏结束
+			            }
+			        }
+			    }) 
+			} 
+			
+			// 计分和加速
+			function score() {
+			    var score = parseInt($("#score").text());
+			    if(score%10 == 0){
+			        speed += 1;       //增加每次下落距离,得到一定分数后就自动加速
+			    }
+			    $("#score").text(score + 1);  //加分
+			}   
+			
+			//游戏结束弹出框
+			function gameOver(){
+				$('#stop').trigger('click')  //自动触发停止点击事件 
+				isclear = true
+				$(".shadow").removeClass('hide').next().removeClass('hide')  //移除hide类 显示结束弹框
+				//再来一局
+				$("#again").click(function (){
+		        	clearInterval(timer);
+		       		$(".shadow").addClass('hide').next().addClass('hide') //添加hide类
+		       		$("#score").text(0)  //分数清零
+		        	$('#inner').empty()  //清空行节点
+		        	init()  
+		        	$("#begin").trigger('click')
+		    	})
+				//返回
+				$("#back").click(function (){
+					clearInterval(timer);
+		       		$(".shadow").addClass('hide').next().addClass('hide')
+		       		$("#score").text(0)
+		        	$('#inner').empty()
+		        	init()  
+				})
+				　  
+			}
+
+		})　
+	</script>
+
+</html>
+

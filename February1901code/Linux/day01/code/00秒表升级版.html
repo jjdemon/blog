@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title></title>
+		<meta charset='utf-8'>
+		<style type="text/css">
+			* {
+				margin: 0;
+				padding: 0;
+			}
+			
+			#digital {
+				height: 120px;
+				background: pink;
+				color: yellow;
+				font-size: 60px;
+				line-height: 120px;
+				text-align: center;
+			}
+			
+			#digital2 {
+				height: 40px;
+				background: pink;
+				color: yellow;
+			}
+			
+			input[type='button'] {
+				width: 15%;
+				height: 50px;
+				margin-left: 40px;
+			}
+			
+			.father {
+				text-align: center;
+				margin-top: 20px;
+			}
+			
+			#clickMark {
+				height: 200px;
+				background: pink;
+				color: yellow;
+				font-size:40px;
+				line-height: 40px;
+				text-align: center;
+				overflow: auto;
+				/*overflow-y: hidden;*/
+				cursor: default;
+			}
+			
+			#clickMark ul {
+				height: 200px;
+			}
+			
+			#clickMark li {
+				height: 40px;
+				list-style: none;
+			}
+			
+			#clickMark::-webkit-scrollbar {
+				/*滚动条整体样式*/
+				width: 8px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id='digital'>00:00.000</div>
+		<div id='clickMark'></div>
+		<div id='digital2'></div>
+		<div class='father'>
+			<input type="button" value="开始" id='start' />
+			<input type="button" value="标记" id='sign' />
+			<input type="button" value="暂停" id='pause' />
+			<input type="button" value="重置" id='reset' />
+		</div>
+
+	</body>
+	<script src="jquery-1.12.3.js"></script>
+	<script>
+		$(function() {
+			var timer = null;
+			var iNum = 0; //保存时间,毫秒数
+			var signCount = 0; // 标记次数
+			var iRemained; //保存上次剩余秒数
+			var bPause = false; //是否按了暂停按钮
+			var bSign = false; //是否按了标记按钮
+			var oldNum = iNum; //保存上次时间，毫秒数
+			$("#clickMark").html('<ul></ul>');
+			//开始
+			$("#start").click(function() {
+				//如果定时器已经存在，不再实例化，直接返回
+				if(timer) {
+					return;
+				}
+				var iStartTime = new Date();
+				iStartTime = iStartTime.getTime(); //开始时间
+				timer = setInterval(function() {
+					//当前时间
+					var iCurrentTime = new Date();
+					iCurrentTime = iCurrentTime.getTime();
+					iNum = parseInt(iCurrentTime - iStartTime); //毫秒数
+					//如果按暂停按钮，现在的差值应该在加上原来的毫秒数
+					if(bPause) {
+						iNum += iRemained;
+					}
+					var iMinute = parseInt(iNum / (60 * 1000));
+					var iSecond = parseInt(iNum / 1000) % 60;
+					var iMicroTime = iNum % 1000;
+					$("#digital").html('' + zeroFill(iMinute, true) + ':' + zeroFill(iSecond, true) + "." + zeroFill(iMicroTime, false));
+				}, 10);
+			})
+
+			//重置
+			$("#reset").click(function() {
+				clearInterval(timer);
+				timer = null;
+				bPause = false;
+				iRemained = 0;
+				signCount = 0;
+				oldNum = 0;
+				$("#digital").html('00:00.000'); //清空显示
+				$("#clickMark").html('<ul></ul>'); //清空显示
+
+			})
+
+			// 标记
+			$("#sign").click(function() {
+				//按下标记按钮
+				bSign = true;
+				// 标记次数
+				signCount = parseInt(signCount) + 1;
+				// 补零操作
+				if(signCount < 10) {
+					signCount = '0' + signCount
+				} else {
+					signCount = '' + signCount;
+				}
+
+				// 此次标记的时间距离上次标记时间 = 此次标记的时间-上次标记的时间
+				differNum = parseInt(iNum - oldNum);
+				//				console.log(differNum)
+				oldNum = iNum; //保存时间,毫秒数
+				iRemained = iNum; //保存现有的毫秒数
+				// iNum
+				iMinute = parseInt(iNum / (60 * 1000));
+				iSecond = parseInt(iNum / 1000) % 60;
+				iMicroTime = iNum % 1000;
+				// differNum
+				iMinute2 = parseInt(differNum / (60 * 1000));
+				iSecond2 = parseInt(differNum / 1000) % 60;
+				iMicroTime2 = differNum % 1000;
+				// 每次都往第一个加
+				node1 = '<li>' + signCount + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+' + zeroFill(iMinute, true) + ':' + zeroFill(iSecond, true) + "." + zeroFill(iMicroTime, false) + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+				node1 += zeroFill(iMinute2, true) + ':' + zeroFill(iSecond2, true) + "." + zeroFill(iMicroTime2, false) + '</li>'
+				$("#clickMark ul").prepend(node1) // 每次都往第一个加
+			})
+
+			//暂停
+			$("#pause").click(function() {
+				clearInterval(timer);
+				timer = null;
+				//按下暂停按钮
+				bPause = true;
+				iRemained = iNum; //保存现有的毫秒数
+			})
+
+			function zeroFill(num, flag) {
+				//flag为true，补一个0
+				if(flag) {
+					return num < 10 ? ('0' + num) : ('' + num);
+				}
+
+				//补2零
+				if(num < 10) {
+					return '00' + num
+				} else if(num < 100) {
+					return '0' + num;
+				} else {
+					return '' + num;
+				}
+			}
+		})
+	</script>
+
+</html>

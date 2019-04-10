@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style type="text/css">
+			* {
+				padding: 0;
+				margin: 0;
+				border: none;
+				list-style: none;
+			}
+			
+			#box {
+				width: 200px;
+				height: 150px;
+				padding: 10px;
+				margin: 10px;
+				border: 1px solid black;
+			}
+			
+			#list {
+				width: 600px;
+				height: 150px;				
+			}
+			
+			#list li {
+				width: 200px;
+				height: 150px;
+				float: left;
+			} 
+		</style>
+	</head>
+	<body>
+		<div id="box" style="width: 200px;">
+			<ul id="list">
+				<li style="background: pink;"></li>
+				<li style="background: grey;"></li>
+				<li style="background: blueviolet;"></li>
+			</ul>
+		</div>
+	</body>
+	<script>
+		//style.width    //返回元素的宽度（包括元素宽度，不包括内边距、边框和外边距）		
+		//style.height   //返回元素的高度（包括元素高度，不包括内边距、边框和外边距）
+		console.log(box.style.width)
+
+		//clientWidth    //返回元素的宽度（包括元素宽度、内边距，不包括边框和外边距）
+		//clientHeight   //返回元素的高度（包括元素高度、内边距，不包括边框和外边距）
+		console.log(box.clientWidth)
+
+		//scrollWidth    //返回元素的宽度（包括元素宽度、内边距和溢出尺寸，不包括边框和外边距），无溢出的情况，与clientWidth相同
+		//scrollHeigh    //返回元素的高度（包括元素高度、内边距和溢出尺寸，不包括边框和外边距），无溢出的情况，与clientHeight相同
+		console.log(box.scrollWidth)
+		
+		//offsetWidth    //返回元素的宽度（包括元素宽度、内边距和边框，不包括外边距）
+		//offsetHeight   //返回元素的高度（包括元素高度、内边距和边框，不包括外边距）
+		console.log(box.offsetWidth)
+
+
+		//1. style.width 返回的是字符串，如28px，offsetWidth返回的是数值28；
+
+		//2. style.width/style.height与scrollWidth/scrollHeight是可读写的属性，clientWidth/clientHeight与offsetWidth/offsetHeight是只读属性
+
+		//3. style.width的值需要事先定义，否则取到的值为空。而且必须要定义在html里(内联样式)，如果定义在css里，style.width的值仍然为空，但元素偏移有效；而offsetWidth则仍能取到。
+	
+	
+	
+	</script>
+</html>

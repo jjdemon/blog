@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			* {padding: 0; margin: 0; border: none;}
+			ul {list-style: none;}
+			#btn {
+				background: orange;
+				width: 100px;
+				height: 30px;
+				font-size: 16px;
+				color: white;
+				border: 1px solid black;
+			}
+			#box {
+				width: 400px;
+				height: 230px;
+				border: 1px solid green;
+				/* 超出部分隐藏 */
+				overflow: hidden;  
+				position: absolute;
+				/* margin: 100px auto; */
+				display: none;
+			}
+			#box #nav {
+				width: 100%;
+				height: 30px;
+				background: gray;
+				cursor: move;
+			}
+			#box #nav #close1 {
+				width: 50px;
+				height: 30px;
+				color: white;
+				background: orange;
+				float: right;
+				text-align: center;
+				line-height: 30px;
+				cursor: pointer;
+			}
+			
+			#box #list {
+				width: 1200px;
+				position: absolute;
+				left: 0;
+				top: 30px;
+			}
+			#box #list li {
+				width: 400px;
+				height: 200px;
+				text-align: center;
+				line-height: 200px;
+				font-size: 50px;
+				float: left;
+			}
+			#box #list li img {
+				width: 100%;
+				height: 100%;
+			}
+			
+			#box #list2 {
+				position: absolute;
+				right: 40%;
+				bottom: 20px;
+			}
+			#box #list2 li {
+				width: 10px;
+				height: 10px;
+				background: white;
+				float: left;
+				margin-left: 10px;
+				border-radius: 50%;
+				cursor: pointer;
+			}
+			#box #list2 li:hover {
+				background: green;
+				color: white;
+			}
+			#box #list2 li.active {
+				background: green;
+				color: white;
+			}
+			
+			#prev, #next {
+				position: absolute;
+				top: 45%;
+				width: 20px;
+				height: 50px;
+				background: white;
+				opacity: 0.8;
+				cursor: pointer;
+			}
+			#prev img, #next img {
+				width: 100%;
+				height: 100%;
+			}
+			#prev {
+				left: 0px;			
+			}
+			#next {
+				right: 0px;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<button id="btn">弹出窗口</button>
+		
+		<div id="box">
+			<div id="nav">
+				<div id="close1">关闭</div>
+			</div>
+			
+			<ul id="list">
+				<li><img src="images2/b1.jpg" /></li>
+				<li><img src="images2/b2.jpg" /></li>
+				<li><img src="images2/b3.jpg" /></li>
+				<li><img src="images2/b4.jpg" /></li>
+			</ul>
+			<ul id="list2">
+				<li class="active"></li>
+				<li></li>
+				<li></li>
+				<li></li> 
+			</ul>
+			
+			<div id="prev">
+				<img src="images2/left.png" />
+			</div>
+			<div id="next">
+				<img src="images2/right.png" />
+			</div>
+			
+		</div>
+		
+		<script src="move.js"></script>
+		<script>
+			
+			// 无缝轮播
+			// 复制第一个li，并添加到最后
+			var aLi = list.getElementsByTagName('li')
+			var aLi2 = list2.getElementsByTagName('li')  //小按钮
+			list.appendChild(aLi[0].cloneNode(true))
+			// 设置ul的宽度
+			// var liWidth = aLi[0].offsetWidth
+			var liWidth = getStyleAttr(aLi[0], 'width')
+			liWidth = parseInt(liWidth)
+			// console.log("liWidth:", liWidth)
+			
+			list.style.width = aLi.length * liWidth + "px"
+			
+			var i = 0;  // 即将移动到的li下标
+			var timer = setInterval(function(){
+				i++
+				move()
+			}, 3000)
+			
+			// 移动到下标为i的li
+			function move(){
+				// 控制右边界
+				if (i > 4) {
+					//非动画方式瞬间移动到第一个图
+					list.style.left = 0;
+					i = 1
+				}
+				
+				// 控制左边界
+				if (i < 0) {
+					list.style.left = -(aLi.length-1) * liWidth + "px";
+					i = aLi.length-2
+				}
+				
+				//动画移动
+				animate(list, {left: -i * liWidth})
+				
+				// 修改按钮的选中状态
+				for (var j=0; j<aLi2.length; j++) {
+					aLi2[j].className = ""
+				}
+				aLi2[i % (aLi.length-1)].className = 'active'
+			}
+			
+			
+			// 移入小按钮
+			for (var j=0; j<aLi2.length; j++) {
+				aLi2[j].index = j
+				aLi2[j].onmouseenter = function(){
+					i = this.index
+					move()
+				}
+			}
+			
+			// 点击上一页，下一页
+			prev.onclick = function(){
+				i--;
+				move()
+			}
+			next.onclick = function(){
+				i++;
+				move()
+			}
+			
+			
+			// 移入box关闭定时器
+			box.onmouseenter = function(){
+				clearInterval(timer);
+			}
+			// 移出box重新开启定时器
+			box.onmouseleave = function(){
+				clearInterval(timer);
+				timer = setInterval(function(){
+					i++
+					move()
+				}, 3000)
+			}
+			
+			
+		</script>
+	
+		<script>
+			//拖拽
+			nav.onmousedown = function(e){
+				e.preventDefault()
+				var x = e.offsetX
+				var y = e.offsetY
+				
+				document.onmousemove = function(e){
+					box.style.left = e.pageX - x + "px"
+					box.style.top = e.pageY - y + "px"
+				}
+				document.onmouseup = function(){
+					document.onmousemove = null
+					document.onmouseup = null
+				}
+			}
+			
+			// 关闭
+			close1.onmousedown = function(){
+				console.log(1)
+				box.style.display = 'none'
+			}
+			
+			// 弹出窗口
+			btn.onclick = function(){
+				box.style.display = 'block'
+				center()
+			}
+			
+			function center(){
+				var docWidth = document.documentElement.clientWidth
+				var docHeight = document.documentElement.clientHeight
+				box.style.left = (docWidth - box.offsetWidth) / 2  + "px"
+				box.style.top = (docHeight - box.offsetHeight) / 2  + "px"
+			}
+			
+			onresize = function() {
+				center()
+			}
+			
+		</script>
+	</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title></title>
+		<style type="text/css">
+			#box {
+				width: 295px;
+				margin: 0 auto;
+				text-align: justify;
+				border: 1px solid #ddd;
+				padding: 15px;
+			}
+			
+			.d_num {
+				display: inline-block;
+				margin: 10px;
+				width: 33px;
+				height: 30px;
+				border: 1px solid #ddd;
+				text-align: center;
+				line-height: 30px;
+				cursor: pointer;
+			}
+			
+			.sum {
+				margin: 0 10px 10px;
+				line-height: 30px;
+				font-size: 20px;
+			}
+			
+			#sum {
+				width: 205px;
+				height: 30px;
+				padding: 0 5px;
+				margin-left: 5px;
+				font-size: 20px;
+			}
+			
+			#process {
+				width: 255px;
+				height: 30px;
+				padding: 0 5px;
+				margin-left: 5px;
+				font-size: 20px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="box">
+			<div class="sum">
+				<input type="text" name="process" id="process" value="0" />
+			</div>
+			<div class="sum">
+				SUM:<input type="text" name="sum" id="sum" value="0" />
+			</div>
+			<div>
+				<span data-num="1" class="d_num">1</span>
+				<span data-num="2" class="d_num">2</span>
+				<span data-num="3" class="d_num">3</span>
+				<span data-num="<-" class="d_num"><-</span>
+				<span data-num="C" class="d_num">C</span>
+			</div>
+			<div>
+				<span data-num="4" class="d_num">4</span>
+				<span data-num="5" class="d_num">5</span>
+				<span data-num="6" class="d_num">6</span>
+				<span data-num="*" class="d_num">*</span>
+				<span data-num="/" class="d_num">/</span>
+			</div>
+			<div>
+				<span data-num="7" class="d_num">7</span>
+				<span data-num="8" class="d_num">8</span>
+				<span data-num="9" class="d_num">9</span>
+				<span data-num="+" class="d_num">+</span>
+				<span data-num="-" class="d_num">-</span>
+			</div>
+			<div>
+				<span data-num="0" class="d_num">0</span>
+				<span data-num="00" class="d_num">00</span>
+				<span data-num="." class="d_num">.</span>
+				<span data-num="%" class="d_num">%</span>
+				<span data-num="=" class="d_num">=</span>
+			</div>
+		</div>
+		<script type="text/javascript">
+			var $box = document.getElementById('box');
+			var $sum = document.getElementById('sum');
+			var $process = document.getElementById('process');
+			var sum = 0,process = '',num1 = '',num2 = '',temp = '',statu = false;
+
+			$box.onclick = function(e) { //点击事件
+				var event = window.event || e; //兼容
+				var ele = event.srcElement || event.target;
+				var _className = ele.className;
+				if(_className == 'd_num') {
+					var num = ele.getAttribute('data-num'); //点击的按钮对应的值,返回元素指定属性的值
+					var NotNum = isNaN(num); //检查是否为空
+					if(!NotNum || num == '.') { //点击了数字
+						if(!statu) { //还没点击过运算符
+							if(num1 == '0') { //第一位点击是0不修改
+								num1 = '';
+							}
+							num1 += num; //点击数字拼接
+							process = num1;
+						} else { //已经点击过符号，第二个数值
+							if(num2 == '0') {
+								num2 = '';
+							}
+							num2 += num;
+							process = num1 + temp + num2; //数值1和操作符和数值2拼接
+						}
+						$process.value = process; //修改显示内容
+					} else { //点击了运算符
+						if(num1 == '') { //但是数值1为空，非法操作
+							return false;
+						}
+						if(num == 'C') { //归零
+							num1 = '';
+							num2 = '';
+							process = '';
+							temp = '';
+							sum = '';
+							$process.value = '0';
+							$sum.value = '0';
+							statu = false;
+							return false;
+						}
+						if(num == '<-') { //退档
+							//判断删的是值1还是值2
+							if(num2 == '') {
+								num1 = num1.substring(0, num1.length - 1);//获取字符串，长度减1
+								if(num1 == '') {//然后是空的则等于0
+									num1 = '0';
+								}
+								process = num1;
+								$process.value = process;
+							} else {
+								num2 = num2.substring(0, num2.length - 1);
+								if(num2 == '') {
+									num2 = '0';
+								}
+								process = num1 + temp + num2;
+								$process.value = process;
+							}
+							return false;
+						}
+						if(num2 != '') { //数值2不为空
+							if(num == '=') { //点击了= 操作到此结束
+								$process.value = process;//拼接结果 a+b
+							} else {
+								$process.value = process + num;
+							}
+							//匹配一个变量，随后会与结构中的每个 case 的值做比较。
+							//如果存在匹配，则与该 case 关联的代码块会被执行。break阻止代码自动地向下一个 case 运行。
+							switch(temp) { //元操作继续
+								case '+':
+									sum = parseFloat(num1) + parseFloat(num2);
+									$sum.value = sum;
+									$process.value = process;
+									num1 = sum + '';
+									num2 = '';
+									break;
+
+								case '-':
+									sum = parseFloat(num1) - parseFloat(num2);
+									$sum.value = sum;
+									$process.value = process;
+									num1 = sum + '';
+									num2 = '';
+									break;
+
+								case '*':
+									sum = parseFloat(num1) * parseFloat(num2);
+									$sum.value = sum;
+									$process.value = process;
+									num1 = sum + '';
+									num2 = '';
+									break;
+
+								case '/':
+									sum = parseFloat(num1) / parseFloat(num2);
+									$sum.value = sum;
+									$process.value = process;
+									num1 = sum + '';
+									num2 = '';
+									break;
+
+								case '%':
+									sum = parseFloat(num1) % parseFloat(num2);
+									$sum.value = sum;
+									$process.value = process;
+									num1 = sum + '';
+									num2 = '';
+									break;
+							}
+						} else { 
+							if(num == '=') {//值2如果是= 则非法操作
+								return false;
+							}
+							$process.value = process + num;//其他运算符拼接
+							process = '';
+						}
+						
+						temp = num; //记录操作符
+						statu = true; //已经触发操作状态
+					}
+				}
+			};
+		</script>
+		</div>
+	</body>
+
+</html>

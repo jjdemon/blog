@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+ <head>
+ <meta charset="UTF-8">
+ <title></title>
+ <meta name="Generator" content="EditPlus">
+ <meta name="Author" content="">
+ <meta name="Keywords" content="">
+ <meta name="Description" content="">
+ <style type="text/css">
+/* 	网格的颜色*/
+	table{
+		background-color:rgb(168,209,217);
+	}
+	td{
+		width:5px;
+		height:5px;
+		background-color:#fff;
+		border:0px
+	}
+  </style>
+ <script type="text/javascript" src="../jquery-1.12.3.js">
+ </script>
+ <script type="text/javascript">
+ 	var tab=null;
+	var score=0;//得分
+	var speds=100;//下落速度
+	$(function(){
+		tab=$('table');
+		
+		//生成游戏界面
+		for(var r=0;r<45;r++){//45行
+			var row = $('<tr>');
+			tab.append(row);
+			for(var c=0;c<30;c++){//30列
+				row.append('<td>');
+			}
+		}
+		
+		//生成图形
+		var graph=generateGraph(13,0);
+//		console.log('gargh:'+ graph)
+		applyColor(graph,randomColor());
+			
+		//不断产生图形，并下落
+		var interID=setInterval(function(){
+					graph=atuoGenerateGraph(graph);
+					if(graph==null){
+						clearInterval(interID);
+						alert('game over!');
+					}
+			  },speds);
+			
+ 
+		//绑定左移，右移，旋转事件 
+		$('body').keydown(function(e){
+			if(e.keyCode==37){
+				graph=aroundMove(graph,-1);
+			}
+			if(e.keyCode==39){
+				graph=aroundMove(graph,1);
+			}
+			if(e.keyCode==38){
+				var clr = getColor(graph);
+				applyColor(graph,'');
+				graph=spinGraph(graph,graph[0]);
+				applyColor(graph,clr);
+			}
+			if(e.keyCode==40){
+				graph=downGraph(graph,1);
+			}
+		});
+		
+		$('body').prepend('<div></div>');
+		$('body div').css('font-size',18);
+		$('body div').css('font-weight','bold');
+		$('body div').append('得分：'+score);
+ 
+		//获取焦点
+		$('body').focus();
+	    });
+	
+	
+	/**
+	 * 不断自动产生图形
+	 */
+	function atuoGenerateGraph(graph){
+		var res=downGraph(graph,1);
+		if(res==null){
+			//计算得分
+			score+=eliminateLine();
+			speds=speds/(parseInt(score/20)+1);//每得20分进行一次速度升级
+			$('body div').empty();
+			$('body div').append('得分：'+score);
+			//重新生成新的图形
+			var graph=generateGraph(13,0);
+			applyColor(graph,randomColor());
+			return graph
+		}else{
+			return res;
+		}
+	}
+ 
+	/**
+	 *  消除整行
+	 */
+	function eliminateLine(){
+		var trs=tab.find('tr');
+		var tempInx=[];
+		for(var i=0;i<trs.length;i++){
+			var tds=$(trs[i]).find('td');
+			var flag=true;
+			for(var j=0;j<tds.length;j++){
+				if(!validateBgColor($(tds[j]))){
+					flag=false;
+					break;
+				}
+			}
+			if(flag){
+				tempInx.push(i);
+			}
+		}
+ 
+		for(var i=0;i<tempInx.length;i++){
+			var tr=$('table tr:eq('+tempInx[i]+')');
+			tr.remove();
+			var tds=tr.find('td');
+			for(var j=0;j<tds.length;j++){
+				$(tds[j]).css('background-color','');
+			}
+			tab.prepend(tr);
+		}
+		return tempInx.length;
+	}
+ 
+ 
+	/**
+	 * 使图形左右移动
+	 * p: -1 左移 1 右移
+	 */
+	function aroundMove(graph,p,color){
+		var nGraph=[];
+		var clr = getColor(graph);
+		applyColor(graph,'');
+		for(var i=0;i<graph.length;i++){
+			var pos=getTDCoord(graph[i]);
+			var x=pos.x+p;
+			var tempEl=getCoord(x,pos.y);
+			if(tempEl==null||validateBgColor(tempEl)){
+				applyColor(graph,clr);
+				return graph;
+			}else{
+				nGraph[i]=tempEl;
+			}
+		}
+		applyColor(nGraph,clr);
+		return nGraph;
+	}
+	
+	/**
+	 * 使图形下降
+	 * graph:图形中元素的集合
+	 * speed:下落速度
+	 * color:已存在元素的背景色，用来标示已存在元素
+	 */
+	function downGraph(graph,speed,color){
+		var nGraph=[];
+		var clr = getColor(graph);
+		applyColor(graph,'');
+		if(graph==null){
+			return null;
+		}
+		for(var i=0;i<graph.length;i++){
+			var pos=getTDCoord(graph[i]);
+			var y=pos.y+speed;
+			var tempEl=getCoord(pos.x,y);
+			//下落，除非接触到yi存在元素，或者界面的底部
+			if(tempEl==null||validateBgColor(tempEl)){
+				applyColor(graph,clr);
+				return null;
+			}else{
+				nGraph[i]=tempEl;
+			}
+		}
+		applyColor(nGraph,clr);
+		return nGraph;
+	}
+	
+	/**
+	 * 根据背景颜色判断
+	 */
+	function validateBgColor(el){
+		var bg=el.css('background-color'); 
+		if(bg&&RGBtoHex(bg)!='FFFFFF'){
+			return true;
+		}else{
+			return false;
+		}
+	}
+ 
+	/**
+	 * rgb颜色转换为16进制颜色
+	 * col:颜色字符串
+	 */
+	function RGBtoHex(col) {
+		var R=-1;
+		var G=-1;
+		var B=-1;
+		if(col.substring(0,3)=='rgb'){
+			var str=col.substring(4,col.length-1);
+			var color=str.split(',');
+			R=color[0];
+			G=color[1];
+			B=color[2];
+		}else if(col.substring(0,1)=='#'){
+			return col.substring(1,col.length).toUpperCase();
+		}else{
+			return null;
+		}
+		function toHex(N){
+			if (N==null) 
+				return "00"; 
+ 
+			N=parseInt(N); 
+			if (N==0 || isNaN(N)) 
+				return "00"; 
+			N=Math.max(0,N); 
+			N=Math.min(N,255); 
+			N=Math.round(N); 
+			return "0123456789ABCDEF".charAt((N-N%16)/16) + "0123456789ABCDEF".charAt(N%16); 
+		}
+		return toHex(R)+toHex(G)+toHex(B)
+	}
+	
+	/**
+	 * 生成图形
+	 */
+	var rindex=[];
+	function generateGraph(x,y){
+		var core=getCoord(x,y);
+		if(core==null){
+			alert(core);
+			alert(tab);
+		}
+		if(validateBgColor(core)){
+			return null;
+		}
+		var graphs=[];
+		
+		//图形1
+		var graph1=[];
+		graph1.push(core);
+		graphs.push(graph1);
+		//图形2
+		var graph2=[];
+		graph2.push(core);
+		graph2.push(getCoord(x+1,y));
+		graphs.push(graph2);
+		//图形3
+		var graph3=[];
+		graph3.push(core);
+		graph3.push(getCoord(x+1,y));
+		graph3.push(getCoord(x+2,y));
+		graph3.push(getCoord(x+3,y));
+		graphs.push(graph3);
+		//图形4
+		var graph4=[];
+		graph4.push(core);
+		graph4.push(getCoord(x+1,y));
+		graph4.push(getCoord(x,y+1));
+		graph4.push(getCoord(x+1,y+1));
+		graphs.push(graph4);
+		//图形5
+		var graph5=[];
+		graph5.push(core);
+		graph5.push(getCoord(x+1,y));
+		graph5.push(getCoord(x-1,y));
+		graph5.push(getCoord(x,y+1));
+		graphs.push(graph5);
+		//图形6
+		var graph6=[];
+		graph6.push(core);
+		graph6.push(getCoord(x+1,y));
+		graph6.push(getCoord(x,y+1));
+		graph6.push(getCoord(x-1,y+1));
+		graphs.push(graph6);
+		graphs.push(graph6);
+		graphs.push(graph6);//增加图形6的随机概率
+		
+		
+		return graphs[randomIndex(graphs.length,rindex)];
+	}
+	
+	/** 
+	 * 随机数
+	 */
+	function randomIndex(len,arr){
+		var flag = false;
+		var index= 0;
+		do{//保证每3次随机必定有一个不同于前两个的图形
+			index=parseInt(Math.random()*len);
+			if(arr.length<2||arr[0]!=index){
+				arr.unshift(index,1);
+				arr.length=2;
+				flag = false;
+			}else{
+				if(arr[1]>=2){
+					flag = true;
+				}else{
+					arr[1] = arr[1]+1;
+					flag = false;
+				}
+			}
+		}while(flag);
+		return index;
+	}
+	
+	/**
+	 * 随机颜色
+	 */
+	var colors = ['aquamarine','black','blue','blueviolet','brown','cadetblue','chocolate','cornflowerblue','crimson','darkorange','deepskyblue'];
+	var cindex = [];
+	function randomColor(){
+		return colors[randomIndex(colors.length,cindex)]
+	}
+ 
+	/**
+	 * 获取元素颜色
+	 */
+	function getColor(arr){
+		if(arr==null){
+			return '';
+		}
+		return arr[0].css('background-color');
+	}
+	
+	/**
+	 * 上色
+	 */
+	 function applyColor(arr,color){
+		if(arr==null){
+			return null;
+		}
+		for(var i=0;i<arr.length;i++){
+			arr[i].css('background-color',color);
+		}
+	 }
+	
+ 
+    /**
+	 * 旋转图形
+	 * graph：图形中元素的集合
+	 * core: 旋转的中心点
+	 */
+	 function spinGraph(graph,core){
+		var tempGraph=[];
+		for(var i=0;i<graph.length;i++){
+			if(spinSingle(graph[i],core)==null){
+				return graph;
+			}else{
+				tempGraph.push(spinSingle(graph[i],core));
+			}
+		}
+		return tempGraph;
+	 }
+ 
+	 /**
+	  * 旋转单一的点
+	  * t1围绕t2旋转
+	  */
+	function spinSingle(t1,t2){
+		var dis=getDistance(t1,t2);
+		var absDis=getTDCoord(t2);
+		var x=-1;
+		var y=-1;
+		if(dis.x==0||dis.y==0){
+			y=absDis.y-dis.x;
+			x=absDis.x+dis.y;
+		}else if(dis.x*dis.y>0){
+			x=absDis.x+dis.x;
+			y=absDis.y-dis.y;
+		}else if(dis.x*dis.y<0){
+			x=absDis.x-dis.x;
+			y=absDis.y+dis.y;
+		}
+		if(x<0||y<0){
+			return null;
+		}
+		return getCoord(x,y);
+	}
+	/**
+	 * 获取t1到t2的距离
+	 */
+	function getDistance(t1,t2){
+		var tc1=getTDCoord(t1);
+		var tc2=getTDCoord(t2);
+		var x=tc1.x-tc2.x;
+		var y=tc1.y-tc2.y;
+		return {x:x,y:y};
+	}
+ 
+	/**
+	 *	获取指定td的坐标
+	 */
+	function getTDCoord(td){
+		var ctd=td;
+		var len=ctd.length;
+		var x=-1;
+		while(len>0){
+			ctd=ctd.prev('td');
+			x++;
+			len=ctd.length;
+		};
+		var y=-1;
+		var tr=td.parent('tr');
+		len=tr.length;
+		while(len>0){
+			tr=tr.prev('tr');
+			y++;
+			len=tr.length;
+		};
+		return {x:x,y:y};
+	}
+ 
+	/**
+	 * 获取指定坐标的td
+	 */
+	function getCoord(x,y){
+		var trs=tab.find('tr');
+		if(y>=trs.length||y<0){
+			y=trs.length-1;
+			return null;
+		}
+		var tds=$(trs[y]).find('td');
+		if(x>=tds.length||x<0){
+			x=tds.length-1;
+			return null;
+		}
+		return $(tds[x]);
+	}
+
+
+ 
+</script>
+</head>
+ 
+<body>
+<table border="0px" cellpadding="2px" cellspacing="1px">
+</table>
+</body>
+</html>

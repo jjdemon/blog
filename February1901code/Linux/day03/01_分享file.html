@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+	</body>
+	<script type="text/javascript">
+		
+//		var val = 0;
+//		
+		// console.log(val<0 && val>0)
+//		console.log(val<0 && val)
+//		console.log(val>0 && val)
+//		
+
+
+		var obj = {
+		    _value: -3
+		}
+		 
+		Object.defineProperty(obj, "_val", {
+		    get: function() {
+		        this._value += 2;
+		        return this._value;
+		    }
+		  }
+		)
+		//我们可以声明一个对象，并给其赋予一个数据属性，比如 _value = -3， 然后再给它设置一个访问器属性 val，
+		//gettar参数设置为：当我读取 val属性时，_value的值加2，并将 _value 的值返回。这样一来当我第一次判断
+		//val<0 时，返回值为 -3+2=-1, 成立。进行第二次判断时，再一次读取了它，这次的返回值变成了 -1+2>0, 也
+		//成立，于是表达式为真
+		
+//		console.log(obj._val<0 && obj._val>0)
+//		console.log(obj._val)
+//		console.log(obj._val)
+
+		var obj = {};
+		var initValue = 'hello';
+		Object.defineProperty(obj,"newKey",{
+		    get:function (){
+		        //当获取值的时候触发的函数
+		        return initValue;    
+		    },
+		    set:function (value){
+		        //当设置值的时候触发的函数,设置的新值通过参数value拿到
+		        initValue = value;
+		    }
+		});
+		//获取值
+		console.log( obj.newKey );  //hello
+		
+		//设置值
+		obj.newKey = 'change value';
+		
+		console.log( obj.newKey ); //change value
+		
+		//注意：get或set不是必须成对出现，任写其一就可以。如果不设置方法，则get和set的默认值为undefined
+		//https://segmentfault.com/a/1190000007434923
+	</script>
+</html>
+ 
