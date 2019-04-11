@@ -1,57 +1,6 @@
 # Day03
 
-### 一、上堂回顾
-
-> 
-
-### 二、用户和权限
-
-#### 1.创建用户
-
-```sql
-基本语法： 
-	Create user ‘用户名’@‘用户地址’ identified by ‘密码’;
-示例： 
-	Create user ‘test’@‘192.168.10.1’ identified by ‘12345’;
-示例说明： 
-	创建用户，并且设置密码
-```
-
-#### 2.删除用户
-
-```
-基本语法：
-	drop user ‘用户名’@‘用户地址’;
-示例：
-	drop user ‘test’@‘192.168.10.1’;
-示例说明：
-	删除用户
-
-```
-
-#### 3.授予权限
-
-```
-基本语法：
-	grant 权限 on *.* to ‘用户名’@‘用户地址’;
-示例：
-	grant 权限 on *.* to ‘test’@‘192.168.10.1’;
-示例说明：
-	给用户权限
-```
-
-#### 4.剥夺权限
-
-```
-基本语法：
-	revoke 权限 on *.*  from ‘用户名’@‘用户地址’;
-示例：
-	revoke 权限 on *.* from ‘test’@‘192.168.10.1’;
-示例说明：
-	收回用户权限
-```
-
-### 三 索引
+### 一， 索引
 
 #### 1.索引介绍
 
@@ -81,17 +30,6 @@
 
 ```
 基本语法：
-	revoke 权限 on *.*  from ‘用户名’@‘用户地址’;
-示例：
-	revoke 权限 on *.* from ‘test’@‘192.168.10.1’;
-示例说明：
-	收回用户权限
-```
-
-#### 
-
-```
-基本语法：
 	show index from tablename;
 示例：
 	show index from user\G;
@@ -100,8 +38,6 @@
 ```
 
 #### 4.普通索引
-
-
 
 ```
 基本语法：
@@ -148,7 +84,7 @@ create table user (
 	id int auto_increment,
 	name varchar(20),
 	primary key(id),
-	unique (name),
+	unique (name)
 ) engine=innodb default charset=utf8;
 
 ```
@@ -166,7 +102,7 @@ create table user (
 
 
 
-### 四 事务
+### 二， 事务
 
 #### 1.事务控制语言(DTL)
 
@@ -388,20 +324,3 @@ conn.close()
 ```
 
  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
